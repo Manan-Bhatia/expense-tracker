@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { CreateAccountDto } from './dto/create-account.dto';
 import { UpdateAccountDto } from './dto/update-account.dto';
-import { Repository } from 'typeorm';
+import { EntityManager, Repository } from 'typeorm';
 import { Account } from './entities/account.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 
@@ -22,20 +22,27 @@ export class AccountService {
   }
 
   findAll() {
-    return this.accountRepository.find({
-      relations: ['user'],
-    });
+    return this.accountRepository.find({ relations: ['transactions'] });
   }
 
-  findOne(id: string) {
-    return this.accountRepository.findOne({
-      where: { id },
-      relations: ['user'],
-    });
+  async findOne(id: string, manager?: EntityManager) {
+    if (manager) {
+      return manager.findOne(Account, { where: { id } });
+    }
+    return await this.accountRepository.findOne({ where: { id } });
   }
 
-  update(id: string, updateAccountDto: UpdateAccountDto) {
-    return this.accountRepository.update(id, updateAccountDto);
+  async update(
+    id: string,
+    updateAccountDto: UpdateAccountDto,
+    manager?: EntityManager,
+  ) {
+    if (manager) {
+      await manager.update(Account, id, updateAccountDto);
+      return manager.findOne(Account, { where: { id } });
+    }
+    await this.accountRepository.update(id, updateAccountDto);
+    return this.accountRepository.findOne({ where: { id } });
   }
 
   remove(id: string) {

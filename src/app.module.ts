@@ -9,6 +9,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { envConfig } from './common/configuration/configuration';
 import { validateEnvironmentVariables } from './common/configuration/validation';
+import { TransactionModule } from './transaction/transaction.module';
 
 @Module({
   imports: [
@@ -61,6 +62,7 @@ import { validateEnvironmentVariables } from './common/configuration/validation'
     }),
     UserModule,
     AccountModule,
+    TransactionModule,
   ],
   controllers: [AppController],
   providers: [AppService],
